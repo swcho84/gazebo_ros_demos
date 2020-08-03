@@ -14,12 +14,12 @@
   <xacro:property name="mass1" value="0.2" />     <!-- arbitrary value for mass1 -->
   <xacro:property name="mass2" value="0.2" />     <!-- arbitrary value for mass2 -->
   <xacro:property name="mass3" value="0.2" />     <!-- arbitrary value for mass3 -->
-  <xacro:property name="mass4" value="0.002" />     <!-- arbitrary value for mass3 -->
+  <xacro:property name="mass4" value="0.002" />     <!-- arbitrary value for mass4 -->
   <xacro:property name="width" value="0.025" />    <!-- Square dimensions (widthxwidth) of beams -->
   <xacro:property name="height1" value="0.4" />   <!-- Link 1 -->
-  <xacro:property name="height2" value="0.3" />   <!-- Link 2 -->
+  <xacro:property name="height2" value="0.1" />   <!-- Link 2 -->
   <xacro:property name="height3" value="0.2" />  <!-- Link 3 -->
-  <xacro:property name="end_effector" value="0.01" />  <!-- Link 3 -->
+  <xacro:property name="end_effector" value="0.01" />  <!-- end_effector -->
   <xacro:property name="camera_link" value="0.01" /> <!-- Size of square 'camera' box -->
   <xacro:property name="axel_offset" value="0.025" /> <!-- Space btw top of beam and the each joint -->
 
@@ -107,8 +107,8 @@
     </inertial>
   </link>
 
-  <!-- middle arm Link -->
-  <link name="link2">
+  <!-- upper-middle arm Link -->
+  <link name="link2_upper">
     <collision>
       <origin xyz="0 0 ${height2/2 - axel_offset}" rpy="0 0 0"/>
       <geometry>
@@ -131,6 +131,31 @@
         izz="${mass2 / 12.0 * (width*width + width*width)}"/>
     </inertial>
   </link>
+
+  <!-- lower-middle arm Link -->
+  <link name="link2_lower">
+    <collision>
+      <origin xyz="0 0 ${height2/2 - axel_offset}" rpy="0 0 0"/>
+      <geometry>
+	      <box size="${width} ${width} ${height2}"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 ${height2/2 - axel_offset}" rpy="0 0 0"/>
+      <geometry>
+	      <box size="${width} ${width} ${height2}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 ${height2/2 - axel_offset}" rpy="0 0 0"/>
+      <mass value="${mass2}"/>
+      <inertia
+        ixx="${mass2 / 12.0 * (width*width + height2*height2)}" ixy="0.0" ixz="0.0"
+        iyy="${mass2 / 12.0 * (height2*height2 + width*width)}" iyz="0.0"
+        izz="${mass2 / 12.0 * (width*width + width*width)}"/>
+    </inertial>
+  </link>  
 
   <!-- lower arm -->
   <link name="link3">
@@ -211,16 +236,24 @@
   <!-- joint between shoulder and elbow for the elbow motion -->
   <joint name="joint1" type="revolute">
     <parent link="link1"/>
-    <child link="link2"/>
+    <child link="link2_upper"/>
     <origin xyz="0 ${width} ${height1 - axel_offset*2}" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <dynamics damping="0.7"/>
     <limit effort="5000.0" lower="-${PI/2}" upper="${PI/2}" velocity="0.5" /> 
   </joint>
 
-  <!-- joint between elbow and wrist for the wrist motion -->
+  <!-- joint between upper and lower elbow for the rotation -->
+  <joint name="joint2_rotation" type="continuous">
+    <parent link="link2_upper"/>
+    <child link="link2_lower"/>
+    <origin xyz="0 0 ${height2}" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>  
+
+  <!-- joint between lower elbow and wrist for the wrist motion -->
   <joint name="joint2" type="revolute">
-    <parent link="link2"/>
+    <parent link="link2_lower"/>
     <child link="link3"/>
     <origin xyz="0 -${width} ${height2 - axel_offset*2}" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
@@ -279,6 +312,18 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
+
+  <!-- transmission, for the rotation -->
+  <transmission name="tran2_rotation">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint2_rotation">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2_rotation">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>  
 
   <!-- transmission, for the wrist motion -->
   <transmission name="tran2">

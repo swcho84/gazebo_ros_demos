@@ -30,11 +30,23 @@
   </gazebo>
 
   <!-- Link2 -->
-  <gazebo reference="link2">
+  <gazebo reference="link2_upper">
     <mu1>0.2</mu1>
     <mu2>0.2</mu2>
     <material>Gazebo/Black</material>
   </gazebo>
+
+  <gazebo reference="link2_wrist">
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <gazebo reference="link2_lower">
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+    <material>Gazebo/Black</material>
+  </gazebo>  
 
   <!-- Link3 -->
   <gazebo reference="link3">
