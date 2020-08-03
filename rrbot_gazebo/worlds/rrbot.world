@@ -4,13 +4,35 @@
 
   <world name="default">
     <include>
-      <uri>model://ground_plane</uri>
+      <uri>model://asphalt_plane</uri>
     </include>
 
     <!-- Global light source -->
     <include>
       <uri>model://sun</uri>
     </include>
+
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field> 
+    <atmosphere type='adiabatic'/>     
+    <physics type='ode'>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <iters>500</iters>
+          <sor>0.4</sor>
+        </solver>
+        <constraints>
+          <cfm>0</cfm>
+          <erp>0.2</erp>
+          <contact_max_correcting_vel>100</contact_max_correcting_vel>
+          <contact_surface_layer>0.01</contact_surface_layer>
+        </constraints>
+      </ode>    
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>    
 
     <!-- Focus camera on tall pendulum -->
     <gui fullscreen='0'>
